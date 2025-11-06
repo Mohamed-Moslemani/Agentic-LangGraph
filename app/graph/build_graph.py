@@ -1,28 +1,41 @@
 from langgraph.graph import StateGraph, START, END, MessagesState
-from app.agents.card_agent import card_llm_agent, tool_node, route_after_llm
+from agents.intent_agent import intent_llm_agent, route_intent
+from agents.change_pin_agent import change_pin_llm_agent
+from agents.view_card_agent import view_card_llm_agent
+from agents.create_card_agent import create_card_llm_agent
+from agents.stop_card_agent import stop_card_llm_agent
 
 
 def build_graph():
     builder = StateGraph(MessagesState)
 
-    # Nodes
-    builder.add_node("card_agent", card_llm_agent)
-    builder.add_node("tools", tool_node)
+    # register nodes
+    builder.add_node("intent_agent", intent_llm_agent)
+    builder.add_node("change_pin_agent", change_pin_llm_agent)
+    builder.add_node("view_card_agent", view_card_llm_agent)
+    builder.add_node("create_card_agent", create_card_llm_agent)
+    builder.add_node("stop_card_agent", stop_card_llm_agent)
 
-    # Start at LLM
-    builder.add_edge(START, "card_agent")
+    # flow: start → intent agent
+    builder.add_edge(START, "intent_agent")
 
-    # Decide whether to call tools or end
+    # conditional branching after intent detection
     builder.add_conditional_edges(
-        "card_agent",
-        route_after_llm,
+        "intent_agent",
+        route_intent,
         {
-            "tools": "tools",
+            "change_pin": "change_pin_agent",
+            "view_card": "view_card_agent",
+            "create_card": "create_card_agent",
+            "stop_card": "stop_card_agent",
             "end": END,
         },
     )
 
-    # After tools run, go back to the LLM
-    builder.add_edge("tools", "card_agent")
+    # optional: let agents loop back if needed
+    builder.add_edge("change_pin_agent", "intent_agent")
+    builder.add_edge("view_card_agent", "intent_agent")
+    builder.add_edge("create_card_agent", "intent_agent")
+    builder.add_edge("stop_card_agent", "intent_agent")
 
     return builder
