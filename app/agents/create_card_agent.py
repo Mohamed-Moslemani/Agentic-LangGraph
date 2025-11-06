@@ -1,10 +1,6 @@
 from typing import Dict, Any
 from langgraph.graph import MessagesState
-try:
-    from langgraph.prebuilt import ToolNode
-except ImportError:
-    from langgraph.prebuilt.tool import ToolNode  
-
+from langgraph.prebuilt import ToolNode
 from llm.model import get_llm
 from tools.mcp_tools import create_card_tool
 
