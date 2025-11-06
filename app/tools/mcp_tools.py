@@ -3,7 +3,7 @@ import base64
 
 from langchain_core.tools import tool
 
-from app.mcp.fransa_mcp import (
+from mcp_2.fransa_mcp import (
     set_pin,
     retrieve_card_details,
     list_client_cards,
@@ -14,13 +14,8 @@ from app.mcp.fransa_mcp import (
 
 @tool
 def change_pin_tool(clientId: str, cardToken: str, new_pin: str) -> Dict[str, Any]:
-    """
-    Change the PIN of a card belonging to a client.
-
-    Args:
-        clientId: The client ID of the card owner.
-        cardToken: The token of the card whose PIN should be changed.
-        new_pin: The new PIN in plain digits (4 to 6 digits).
+    """"
+    Change the PIN for a given card based on the request of the user
     """
     raw = new_pin.strip()
     if not raw.isdigit() or not (4 <= len(raw) <= 6):
